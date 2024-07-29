@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classification</title>
+    <style>
+        #result img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Classification</h1>
+    <form id="uploading" enctype="multipart/form-data">
+        <input type="file" id="file" name="file" accept="image/*">
+        <button type="submit">Upload</button>
+    </form>
+    <div id="result"></div>
+<!-- script for displaying the image -->
+    <script>
+        document.getElementById('uploading').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            const Field = document.getElementById('file');
+            formData.append('file', Field.files[0]);
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            const images = document.createElement('img');
+            images.src = URL.createObjectURL(Field.files[0]);
+            images.onload = () => URL.revokeObjectURL(images.src);
+            resultDiv.appendChild(images);
+
+            const className = document.createElement('p');
+            className.innerText = `${result.class_name}`;
+            resultDiv.appendChild(className);
+        };
+    </script>
+</body>
+</html>
